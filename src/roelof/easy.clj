@@ -1,4 +1,4 @@
-(ns roelof.easy
+(ns roelof.easy)(ns roelof.easy
   (:require [hyperfiddle.rcf :as rcf]
             [clojure.string :as str]))
 
@@ -87,7 +87,9 @@
   (apply max nums))
 
 
-(defn score-letter [l]
+(defn score-letter
+  "looks the value of a letter in scrabble"
+ [l]
   (condp contains? (str/upper-case l)
     #{"A" "E" "I" "O" "U" "L" "N" "R" "S" "T"}  1
     #{"D" "G"}                                  2
@@ -99,10 +101,46 @@
     0))
 
 (defn score [w]
+"calculates the scrabble score of a word"
   (->> w
        (map #(score-letter %))
        (apply +)))
 
+(defn count-if [pred? coll]
+   (count (filter pred? coll)))
+
+
+(def lookup
+  {:mercury 0.2408467
+   :venus 0.61519726
+   :earth 1
+   :mars 1.8808158
+   :jupiter 11.862615
+   :saturn 29.447498
+   :uranus 84.016846
+   :neptune 164.79132})
+
+(defn convert-space-age 
+[age source-planet target-planet]
+  (int (* age (/ (lookup source-planet) (lookup target-planet)))))
+  
+(def game-state
+  {:current-player "X"
+   :board [nil "X" "O" nil nil "X" "O" nil nil]
+   :history [{:player "X"
+              :location 1}
+             {:player "O"
+              :location 2}
+             {:player "X"
+              :location 5}
+             {:player "O"
+              :location 6}]})
+
+  (defn move-played
+    "counts how many moves are played"
+    []
+    (count (game-state :history)))
+ 
 (rcf/tests
  "valid triangle"
   (triangle? 3 4 5 ) := true
@@ -130,5 +168,14 @@
    (largest [1 2 -1 3 3 2 1 0]) := 3
    "scrabble score"
    (score "hello") := 8
-
+   (score "question") := 17
+   (score "quizzed") := 35
+   (count-if even? [1 2 3 4 5 6])
+   (count-if keyword? ["foo" :bar (quote baz)])
+   (count-if (fn [x]
+               (= x (reverse x)))
+             [[1 2 1] [1 2 3 4] [1]])
+    (convert-space-age 30 :earth :saturn) := 1
+    (convert-space-age 10 :mars :mercury) := 78
+    (move-played) := 4
 )
