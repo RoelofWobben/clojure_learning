@@ -1,4 +1,4 @@
-(ns roelof.easy)(ns roelof.easy
+(ns roelof.easy
   (:require [hyperfiddle.rcf :as rcf]
             [clojure.string :as str]))
 
@@ -26,7 +26,7 @@
     (not (number? value)) :something-else
     (zero?  value) :zero
     (> value 10) :pretty-big
-    (< value 0) :negative
+    (neg? value) :negative
     :else :small-number ))
 
 
@@ -34,7 +34,7 @@
   "Write a function to determine if some 3 side lengths are sufficient to make a triangle."
   [a b c]
   (and
-   (> a 0) (> b 0) (> c 0)
+   (pos? a) (pos? b) (pos? c)
    (>= (+ a b) c)
    (>= (+ a c) b)
    (>= (+ b c) a)))
@@ -48,13 +48,8 @@
      (or (= a b) (= a c) (= b c)) :isosceles
      :else :scalene))
 
-(defn clamp
-  "restrict a value to a given range"
-  [x min max]
-  (cond
-    (< min x max) x
-    (> x max) max
-    :else min))
+(defn clamp [x min-x max-x]
+  (min max-x (max min-x x)))
 
 (comment
   (defn process-number [n] (* (+ (inc (/ n 1.5)) 2) 10))
